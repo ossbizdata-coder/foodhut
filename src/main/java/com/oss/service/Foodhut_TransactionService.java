@@ -1,0 +1,16 @@
+// ...existing code...
+public List<SalesResponseModel> getSalesForDay(String date) {
+    // ...existing code...
+    try {
+        User user = userRepository.findById(2)
+            .orElseThrow(() -> new EntityNotFoundException("User with id 2 not found"));
+        // ...use the user object...
+    } catch (EntityNotFoundException e) {
+        log.error("Error fetching user: {}", e.getMessage());
+        // Handle the error or return an empty result
+        return Collections.emptyList();
+    }
+    // ...existing code...
+}
+// ...existing code...
+

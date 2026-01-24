@@ -1,0 +1,6 @@
+// ...existing code...
+    // Add this method to your repository:
+    @Query("SELECT COALESCE(SUM(s.preparedQty), 0) FROM FoodhutSale s WHERE s.itemVariation.id = :variationId AND DATE(s.transactionTime) = :date")
+    int sumPreparedQtyForVariationToday(@Param("variationId") Long variationId, @Param("date") LocalDate date);
+// ...existing code...
+
