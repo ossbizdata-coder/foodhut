@@ -88,6 +88,52 @@ class ApiService {
     }
   }
 
+  /// Update the quantity of a sale record
+  static Future<bool> updateSaleQuantity({
+    required int saleId,
+    required int newQuantity,
+    required String actionType,
+  }) async {
+    try {
+      final token = await _getToken();
+
+      final res = await http.put(
+        Uri.parse('$baseUrl/api/sales/$saleId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'preparedQty': actionType == 'PREPARED' ? newQuantity : 0,
+          'remainingQty': actionType == 'REMAINING' ? newQuantity : 0,
+          'actionType': actionType,
+        }),
+      );
+
+      return res.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Delete a sale record
+  static Future<bool> deleteSale(int saleId) async {
+    try {
+      final token = await _getToken();
+
+      final res = await http.delete(
+        Uri.parse('$baseUrl/api/sales/$saleId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      return res.statusCode == 200 || res.statusCode == 204;
+    } catch (e) {
+      return false;
+    }
+  }
+
   static Future<List<SalesResponseModel>> getSalesForDay(String date) async {
     final token = await _getToken();
 

@@ -116,16 +116,22 @@ class _MenuScreenState extends State<MenuScreen> {
 
       if (!mounted) return;
 
-      Navigator.push(
+      final result = await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => ItemDetailScreen(
             title: title,
             items: filteredSales,
             color: color,
+            selectedDate: selectedDate,
           ),
         ),
       );
+
+      // Refresh if changes were made
+      if (result == true) {
+        _loadTodaySummary();
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -248,6 +254,8 @@ class _MenuScreenState extends State<MenuScreen> {
             title: 'Sold Items',
             items: soldItems,
             color: const Color(0xFF2196F3), // Blue color
+            allowEdit: false, // Sold items are calculated, not editable
+            selectedDate: selectedDate,
           ),
         ),
       );
