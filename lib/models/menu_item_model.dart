@@ -104,7 +104,7 @@ class SalesResponseModel {
 
 
     return SalesResponseModel(
-      saleId: json['saleId'] ?? 0,
+      saleId: json['saleId'] ?? json['id'] ?? 0,
       itemName: json['itemName'] ?? 'Unknown',
       variation: json['variation'] ?? 'Standard',
       price: json['price'] ?? 0,

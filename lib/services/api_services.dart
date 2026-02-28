@@ -95,7 +95,20 @@ class ApiService {
     required String actionType,
   }) async {
     try {
+      if (saleId <= 0) {
+        print('[updateSaleQuantity] ERROR: Invalid saleId=$saleId');
+        return false;
+      }
+
       final token = await _getToken();
+
+      final body = {
+        'preparedQty': actionType == 'PREPARED' ? newQuantity : 0,
+        'remainingQty': actionType == 'REMAINING' ? newQuantity : 0,
+        'actionType': actionType,
+      };
+
+      print('[updateSaleQuantity] PUT /api/sales/$saleId body=$body');
 
       final res = await http.put(
         Uri.parse('$baseUrl/api/sales/$saleId'),
@@ -103,15 +116,14 @@ class ApiService {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode({
-          'preparedQty': actionType == 'PREPARED' ? newQuantity : 0,
-          'remainingQty': actionType == 'REMAINING' ? newQuantity : 0,
-          'actionType': actionType,
-        }),
+        body: jsonEncode(body),
       );
 
-      return res.statusCode == 200;
+      print('[updateSaleQuantity] Response: ${res.statusCode} - ${res.body}');
+
+      return res.statusCode == 200 || res.statusCode == 204;
     } catch (e) {
+      print('[updateSaleQuantity] Exception: $e');
       return false;
     }
   }

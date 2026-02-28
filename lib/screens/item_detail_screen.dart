@@ -200,9 +200,33 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
           }
         }
       } else {
-        // Update the first sale record with the new quantity
-        // This assumes all records for the same item should be consolidated
+        // If multiple records exist for this item, delete the extras and update the first
         final mainSale = salesForItem.first;
+
+        // Validate saleId before proceeding
+        if (mainSale.saleId <= 0) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Cannot edit: invalid record ID (${mainSale.saleId}). '
+                  'Please contact your backend developer to check if the API returns saleId.',
+                ),
+                backgroundColor: Colors.orange,
+                duration: const Duration(seconds: 5),
+              ),
+            );
+          }
+          return;
+        }
+
+        // Delete all extra duplicate records (keep only the first)
+        if (salesForItem.length > 1) {
+          for (var i = 1; i < salesForItem.length; i++) {
+            await ApiService.deleteSale(salesForItem[i].saleId);
+          }
+        }
+
         final actionType = mainSale.actionType == SaleActionType.PREPARED
             ? 'PREPARED'
             : mainSale.actionType == SaleActionType.REMAINING
@@ -246,9 +270,13 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
         } else {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Failed to update quantity'),
+              SnackBar(
+                content: Text(
+                  'Failed to update quantity (saleId=${mainSale.saleId}). '
+                  'Check console logs for backend response.',
+                ),
                 backgroundColor: Colors.red,
+                duration: const Duration(seconds: 5),
               ),
             );
           }
@@ -421,7 +449,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                   : null,
                               child: Container(
                                 margin: const EdgeInsets.only(bottom: 12),
-                                padding: const EdgeInsets.all(16),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(12),
@@ -443,8 +471,8 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                   children: [
                                     // Circle with item number
                                     Container(
-                                      width: 44,
-                                      height: 44,
+                                      width: 36,
+                                      height: 36,
                                       decoration: BoxDecoration(
                                         color: widget.color.withOpacity(0.1),
                                         shape: BoxShape.circle,
@@ -455,12 +483,12 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                                           style: TextStyle(
                                             color: widget.color,
                                             fontWeight: FontWeight.bold,
-                                            fontSize: 16,
+                                            fontSize: 14,
                                           ),
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: 16),
+                                    const SizedBox(width: 10),
 
                                     // Item details
                                     Expanded(
